@@ -22,7 +22,38 @@ public class EbankingBackendApplication {
         SpringApplication.run(EbankingBackendApplication.class, args);
     }
 
+
     @Bean
+    CommandLineRunner commandLineRunner(BankAccountRepository bankAccountRepository){
+        return args -> {
+            BankAccount bankAccount= bankAccountRepository.findById("eac49fdd-bc66-4080-9c99-c3f1d6c2f100").orElse(null);
+
+            if(bankAccount != null) {
+                System.out.println("***************");
+                System.out.println(bankAccount.getId());
+                System.out.println(bankAccount.getBalance());
+                System.out.println(bankAccount.getStatus());
+                System.out.println(bankAccount.getCreatedAt());
+                System.out.println(bankAccount.getCustomer().getNom());
+                System.out.println(bankAccount.getClass().getSimpleName());
+
+                if (bankAccount instanceof CurrentAccount) {
+                    System.out.println("Overdraft => " + ((CurrentAccount) bankAccount).getOverDraft());
+                } else {
+                    System.out.println("Interest Rate=> " + ((SavingAccount) bankAccount).getInterestRate());
+                }
+
+                bankAccount.getAccountOperations().forEach(op -> {
+                    System.out.println("=====================");
+                    System.out.println(op.getType());
+                    System.out.println(op.getOperationDate());
+                    System.out.println(op.getAmount());
+                });
+            }
+        };
+    }
+
+    // @Bean
     CommandLineRunner start(BankAccountRepository bankAccountRepository,
                             CustomerRepository customerRepository,
                             AccountOperationRepository accountOperationRepository){
