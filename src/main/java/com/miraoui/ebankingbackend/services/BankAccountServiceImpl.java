@@ -1,10 +1,12 @@
 package com.miraoui.ebankingbackend.services;
 
+import com.miraoui.ebankingbackend.dtos.CustomerDTO;
 import com.miraoui.ebankingbackend.entities.*;
 import com.miraoui.ebankingbackend.enums.OperationType;
 import com.miraoui.ebankingbackend.exceptions.BalanceNotSufficientException;
 import com.miraoui.ebankingbackend.exceptions.BankAccountNotFoundException;
 import com.miraoui.ebankingbackend.exceptions.CustomerNotFoundException;
+import com.miraoui.ebankingbackend.mappers.BankAccountMapperImpl;
 import com.miraoui.ebankingbackend.repositories.AccountOperationRepository;
 import com.miraoui.ebankingbackend.repositories.BankAccountRepository;
 import com.miraoui.ebankingbackend.repositories.CustomerRepository;
@@ -26,11 +28,27 @@ public class BankAccountServiceImpl implements BankAccountService {
     private CustomerRepository customerRepository;
     private BankAccountRepository bankAccountRepository;
     private AccountOperationRepository accountOperationRepository;
+    private BankAccountMapperImpl dtoMapper;
 
     @Override
-    public Customer saveCustomer(Customer customer) {
+    public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
         log.info("SAVING NEW CUSTOMER");
-        return customerRepository.save(customer);
+        Customer customer = dtoMapper.fromCustomerDTO(customerDTO);
+        Customer savedCustomer = customerRepository.save(customer);
+        return dtoMapper.fromCustomer(savedCustomer);
+    }
+
+    @Override
+    public void deleteCustomer(Long customerId) {
+        customerRepository.deleteById(customerId);
+    }
+
+    @Override
+    public CustomerDTO updateCustomer(CustomerDTO customerDTO) {
+        log.info("SAVING NEW CUSTOMER");
+        Customer customer = dtoMapper.fromCustomerDTO(customerDTO);
+        Customer savedCustomer = customerRepository.save(customer);
+        return dtoMapper.fromCustomer(savedCustomer);
     }
 
     @Override
@@ -72,8 +90,19 @@ public class BankAccountServiceImpl implements BankAccountService {
     }
 
     @Override
-    public List<Customer> listCustomers() {
-        return customerRepository.findAll();
+    public List<CustomerDTO> listCustomers() {
+        List<Customer> customers = customerRepository.findAll();
+        List<CustomerDTO> customerDTOS= customers.stream()
+                .map(customer -> dtoMapper.fromCustomer(customer)).toList();
+
+        return customerDTOS;
+    }
+
+    @Override
+    public CustomerDTO getCustomer(Long customerId) throws CustomerNotFoundException {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+        return dtoMapper.fromCustomer(customer);
     }
 
     @Override
@@ -129,4 +158,5 @@ public class BankAccountServiceImpl implements BankAccountService {
         debit(accountIdSource, amount, "Transfer to "+ accountIdDestination);
         credit(accountIdDestination, amount, "Transfer from "+ accountIdSource);
     }
+
 }

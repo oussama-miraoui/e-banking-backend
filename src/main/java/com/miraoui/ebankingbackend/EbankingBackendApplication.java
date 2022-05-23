@@ -1,5 +1,6 @@
 package com.miraoui.ebankingbackend;
 
+import com.miraoui.ebankingbackend.dtos.CustomerDTO;
 import com.miraoui.ebankingbackend.entities.*;
 import com.miraoui.ebankingbackend.enums.AccountStatus;
 import com.miraoui.ebankingbackend.enums.OperationType;
@@ -32,7 +33,7 @@ public class EbankingBackendApplication {
     CommandLineRunner commandLineRunner(BankAccountService bankAccountService){
         return args -> {
             Stream.of("Hassan","Imane","Mohamed").forEach(name->{
-                Customer customer=new Customer();
+                CustomerDTO customer=new CustomerDTO();
                 customer.setNom(name);
                 customer.setEmail(name+"@gmail.com");
                 bankAccountService.saveCustomer(customer);

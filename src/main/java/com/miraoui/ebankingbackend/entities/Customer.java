@@ -1,5 +1,6 @@
 package com.miraoui.ebankingbackend.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,10 @@ public class Customer {
     private Long id;
     private String nom;
     private String email;
+
     @OneToMany(mappedBy = "customer")
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<BankAccount> bankAccounts;
 
 }
